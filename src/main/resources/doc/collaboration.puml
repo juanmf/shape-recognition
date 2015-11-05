@@ -1,0 +1,26 @@
+@startuml
+interface ShapeComparisonStrategy {
+ +getDifference()
+}
+interface Vectorize
+interface IndexGenerator
+
+class IndexGeneratorDefault
+class VectorImageGridIntersections
+class ShapeComparisonDefault
+class IntersectionsDifference
+class VectorImageComparator {
+ -VectorImageGridIntersections compareAgainst
+}
+
+Serializable ()-- VectorImageGridIntersections
+Comparator ()-- VectorImageComparator
+
+IndexGenerator <|-- IndexGeneratorDefault
+ShapeComparisonStrategy <|-- ShapeComparisonDefault
+VectorImageComparator  o-- "1" ShapeComparisonStrategy
+VectorImageComparator o-- "1" VectorImageGridIntersections : compareAgainst >
+class ShapeComparisonDefault --> IntersectionsDifference
+class ShapeComparisonDefault --> IndexGenerator
+IndexGenerator --> IntersectionsDifference
+@enduml

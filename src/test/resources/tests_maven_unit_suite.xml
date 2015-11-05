@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="ShapesProcessingUnit" parallel="instances" thread-count="4">
+
+	<test name="ShapesProcessing_unit">
+		<packages>
+			<package name="ar.com.docdigital.testing.test.unit.*" />
+		</packages>
+	</test>
+
+</suite>
