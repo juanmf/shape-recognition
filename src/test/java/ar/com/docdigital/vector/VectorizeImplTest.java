@@ -55,9 +55,9 @@ public class VectorizeImplTest {
      */
     @org.junit.Test
     public void testProcessImage() {
-//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/shapes.gif");
+        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/shapes.gif");
 //        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/bulon.jpg");
-        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/face.jpg");
+//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/face.jpg");
         System.out.println(img.getHeight());
         Vectorize vectorizer = new VectorizeImpl();
         VectorImageGridIntersections processImage = vectorizer.processImage(img);

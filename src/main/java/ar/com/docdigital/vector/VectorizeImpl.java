@@ -336,12 +336,12 @@ public class VectorizeImpl implements Vectorize {
                 if ((vector.endAx <= f && vector.endBx >= f)
                         || (vector.endAx >= f && vector.endBx <= f)
                 ) {
-                    builder.addXintersect(f, getIntersection(f, vector.endAx, vector.endBx));
+                    builder.addXintersect(f, getIntersection(f, vector.endAy, vector.endBy));
                 }
                 if ((vector.endAy <= f && vector.endBy >= f)
                         || (vector.endAy >= f && vector.endBy <= f)
                 ) {
-                    builder.addXintersect(f, getIntersection(f, vector.endAy, vector.endBy));
+                    builder.addYintersect(f, getIntersection(f, vector.endAx, vector.endBx));
                 }
             }
         }

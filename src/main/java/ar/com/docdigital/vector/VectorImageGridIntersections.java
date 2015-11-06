@@ -111,56 +111,59 @@ public final class VectorImageGridIntersections implements Serializable {
      */
     @Override
     public String toString() {
+        ToStringHelper toString = this.new ToStringHelper();
         StringBuilder out = new StringBuilder();
         Vectorize.Grid grid = Config.getDefaultGrid();
 //        for (Vectorize.Grid grid : Vectorize.Grid.values()) {
             long[] frame = new long[grid.getLines().length];
             Arrays.fill(frame, 0);
-            markIntersectionsInframe(grid, frame);
-            appendFrameToOutput(frame, out);
+            toString.markIntersectionsInframe(grid, frame);
+            toString.appendFrameToOutput(frame, out);
 //        }
         return out.toString();
     }
     
-    private int getLineNumForFloat(float l) {
-        int line = Math.round(l * GRID_FRAME_RATIO + ((GRID_FRAME_SIZE + 1) / 2));
-        if (line < 0 || line > GRID_FRAME_SIZE) {
-            throw new IllegalArgumentException("The line falls out of the frame");
-        }
-        return line;
-    }
-
-    /**
-     * 
-     * @param grid
-     * @param frame 
-     */
-    private void markIntersectionsInframe(Vectorize.Grid grid, long[] frame) {
-        Map<Float, List<Float>> xGridIntersects = constXintersect.get(grid);
-        Map<Float, List<Float>> yGridIntersects = constYintersect.get(grid);
-        float[] lines = grid.getLines();
-        for (float l : lines) {
-            int row;
-            int col = getLineNumForFloat(l);
-            for (Float intersect : xGridIntersects.get(l)) {
-                row = getLineNumForFloat(intersect);
-                frame[row] = frame[row] | (1 << col);
+    private class ToStringHelper {
+        private int getLineNumForFloat(float l) {
+            int line = Math.round(l * GRID_FRAME_RATIO + ((GRID_FRAME_SIZE + 1) / 2));
+            if (line < 0 || line > GRID_FRAME_SIZE) {
+                throw new IllegalArgumentException("The line " + line + "falls out of the frame for float " + l);
             }
+            return line;
+        }
 
-            row = getLineNumForFloat(l);
-            for (Float intersect : yGridIntersects.get(l)) {
-                col = getLineNumForFloat(intersect);
-                frame[row] = frame[row] | (1 << col);
+        /**
+         * 
+         * @param grid
+         * @param frame 
+         */
+        public void markIntersectionsInframe(Vectorize.Grid grid, long[] frame) {
+            Map<Float, List<Float>> xGridIntersects = constXintersect.get(grid);
+            Map<Float, List<Float>> yGridIntersects = constYintersect.get(grid);
+            float[] lines = grid.getLines();
+            for (float l : lines) {
+                int row;
+                int col = getLineNumForFloat(l);
+                for (Float intersect : xGridIntersects.get(l)) {
+                    row = getLineNumForFloat(intersect);
+                    frame[row] = frame[row] | (1 << col);
+                }
+
+                row = getLineNumForFloat(l);
+                for (Float intersect : yGridIntersects.get(l)) {
+                    col = getLineNumForFloat(intersect);
+                    frame[row] = frame[row] | (1 << col);
+                }
             }
         }
-    }
 
-    private void appendFrameToOutput(long[] frame, StringBuilder out) {
-        for (long i : frame) {
-            out.append(String.format("%40s", Long.toBinaryString(i)).replace(' ', '0'));
+        public void appendFrameToOutput(long[] frame, StringBuilder out) {
+            for (long i : frame) {
+                out.append(String.format("%40s", Long.toBinaryString(i)).replace(' ', '0'));
+                out.append(System.lineSeparator());
+            }
             out.append(System.lineSeparator());
         }
-        out.append(System.lineSeparator());
     }
 
     public Long getId() {
