@@ -30,7 +30,28 @@ import marvin.image.MarvinImage;
  *
  * @author juan.fernandez
  */
-public interface Vectorize {
+public interface VectorizeStrategy {
+    
+    /**
+     * Keep instance control from here.
+     * 
+     * Concrete classes constructors should be package private.
+     */
+    enum ConcreteStrategy implements VectorizeStrategy {
+        DEFAULT (new VectorizeImpl());
+        
+        private final VectorizeStrategy INSTANCE;
+        
+        ConcreteStrategy(VectorizeStrategy concreteStrategy) {
+            INSTANCE = concreteStrategy;
+        }
+
+        @Override
+        public VectorImageGridIntersections processImage(MarvinImage img) {
+            return INSTANCE.processImage(img);
+        }
+    }
+    
     enum Grid {
         DENSE (0.1f),
         MEDIUM (0.3f),

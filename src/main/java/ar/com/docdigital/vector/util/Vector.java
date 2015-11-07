@@ -22,13 +22,13 @@
  * THE SOFTWARE.
  */
 
-package ar.com.docdigital.vector;
+package ar.com.docdigital.vector.util;
 
 /**
  *
  * @author juan.fernendez
  */
-class Vector {
+public class Vector {
     public final float endAx;
     public final float endAy;
     public final float endBx;

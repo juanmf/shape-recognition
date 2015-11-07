@@ -24,6 +24,7 @@
 
 package ar.com.docdigital.vector;
 
+import ar.com.docdigital.vector.util.Vector;
 import ar.com.docdigital.vector.config.Config;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -48,7 +49,7 @@ import marvin.util.MarvinPluginLoader;
  * 
  * @author juan.fernandez
  */
-public class VectorizeImpl implements Vectorize {
+class VectorizeImpl implements VectorizeStrategy {
 
     private static final boolean debug = false;
     
@@ -96,7 +97,8 @@ public class VectorizeImpl implements Vectorize {
         SQUARE_DELTAS = Collections.unmodifiableList(list);
     }
 
-    public VectorizeImpl() {
+    VectorizeImpl() {
+        System.out.println("Instanciando VectorizeImpl");
         vectorExtractor = this.new VectorExtractorHelperImpl();
         vectorNormalizer = this.new VectorNormalizerHelperImpl();
         gridIntersectionsFinder = this.new GridIntersectionsFinderImpl();
@@ -330,7 +332,7 @@ public class VectorizeImpl implements Vectorize {
         }
 
         private void findCrossedGridLines(Vector vector, VectorImageGridIntersections.Builder builder) {
-            Vectorize.Grid grid = Config.getDefaultGrid();
+            VectorizeStrategy.Grid grid = Config.getDefaultGrid();
                 
             for (float f : grid.getLines()) {
                 if ((vector.endAx <= f && vector.endBx >= f)

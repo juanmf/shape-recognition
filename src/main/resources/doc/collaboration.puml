@@ -1,26 +1,174 @@
 @startuml
-interface ShapeComparisonStrategy {
- +getDifference()
-}
-interface Vectorize
-interface IndexGenerator
+/' 
+ ' Structure
+ '/
+package "lib" {
+    
+    package "ar.com.docdigital.vector.comparator" {
+        /' 
+         ' Interfaces
+         '/
+        interface ShapeComparisonStrategy << (I, Grey) API >> {
+            + Float getDifference(VectorImageGridIntersections o1, VectorImageGridIntersections o2)
+        }
 
-class IndexGeneratorDefault
-class VectorImageGridIntersections
-class ShapeComparisonDefault
-class IntersectionsDifference
-class VectorImageComparator {
- -VectorImageGridIntersections compareAgainst
-}
+        /' 
+         ' Classes
+         '/
+        class ShapeComparisonDefault
+        class VectorImageComparator << (C, Grey) API >>{
+            -VectorImageGridIntersections compareAgainst
+            -ShapeComparisonStrategy scs
 
-Serializable ()-- VectorImageGridIntersections
+            + compare(VectorImageGridIntersections o1, VectorImageGridIntersections o2)
+        }
+
+        /' 
+         ' Enums
+         '/
+        enum ShapeComparisonStrategy.ConcreteStrategy << (E, Grey) API, Proxy >>{
+            DEFAULT
+        }
+
+    }
+
+    package "ar.com.docdigital.vector" {
+        /' 
+         ' Interfaces
+         '/
+        interface VectorizeStrategy << (I, Grey) API >> {
+            + VectorImageGridIntersections processImage(MarvinImage)
+        }
+
+        /' 
+         ' Classes
+         '/
+        class VectorImageGridIntersections << (C, Grey) API, Serializable >> {
+            - Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> constXintersect
+            - Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> constYintersect
+
+            Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> getConstXintersect()
+            Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> getConstYintersect()
+        }
+
+        class VectorizeImpl {
+            ~ VectorizeImpl()
+        }
+
+        /' 
+         ' Enums
+         '/
+        enum Grid {
+            DENSE
+            MEDIUM
+            LIGHT
+        }
+
+        enum VectorizeStrategy.ConcreteStrategy << (E, Grey) API, Proxy >>{
+            DEFAULT
+        }
+    }
+
+    package "ar.com.docdigital.vector.comparator.difference" {
+        /' 
+         ' Interfaces
+         '/
+        interface IndexGenerator
+
+        /' 
+         ' Classes
+         '/
+        class IndexGeneratorDefault
+    }
+
+    package "ar.com.docdigital.vector.util" {
+        /' 
+         ' Classes
+         '/
+        class IntersectionsDifference
+        class Vector
+    }
+}
+/'
+ ' Nesting
+ '/
+VectorizeStrategy +-- Grid
+VectorizeStrategy +-- VectorizeStrategy.ConcreteStrategy
+ShapeComparisonStrategy +-- ShapeComparisonStrategy.ConcreteStrategy
+
+/' 
+ ' End Structure
+ '/
+
+/' 
+ ' Published API
+ '/
+ShapeComparisonStrategy ()-- ShapeComparisonStrategy
 Comparator ()-- VectorImageComparator
+Note left on link
+Comparator cmp = new VectorImageComparator(
+        VectorizeStrategy.ConcreteStrategy.DEFAULT.processImage(imgToCmpAgainst)
+        ShapeComparisonStrategy.ConcreteStrategy.DEFAULT
+    ); 
+Collection<VectorImageGridIntersections> patternsToSort = patternDB;
+Collections.sort(patternsToSort, cmp);
+End Note
+VectorizeStrategy ()-- VectorizeStrategy
+Note right on link
+Collection<MarginImage> images = imagesDB;
+Collection<VectorImageGridIntersections> patternsDB = new ArrayList<>();
 
+images.parallelStream().forEach(
+        e -> patternsDB.add(VectorizeStrategy.ConcreteStrategy.DEFAULT.processImage(e))
+    );
+End Note
+
+/' 
+ ' Inheritance
+ '/
+VectorizeStrategy <|-- VectorizeImpl
+VectorizeStrategy <|-- VectorizeStrategy.ConcreteStrategy 
+ShapeComparisonStrategy.ConcreteStrategy --|> ShapeComparisonStrategy
 IndexGenerator <|-- IndexGeneratorDefault
 ShapeComparisonStrategy <|-- ShapeComparisonDefault
-VectorImageComparator  o-- "1" ShapeComparisonStrategy
+
+/'
+ ' Compositions
+ '/
+VectorImageComparator  o-right- "1" ShapeComparisonStrategy
 VectorImageComparator o-- "1" VectorImageGridIntersections : compareAgainst >
-class ShapeComparisonDefault --> IntersectionsDifference
-class ShapeComparisonDefault --> IndexGenerator
+
+/'
+ ' Reference Dependency
+ '/
+ShapeComparisonDefault --> IntersectionsDifference
+ShapeComparisonDefault --> IndexGenerator
 IndexGenerator --> IntersectionsDifference
+VectorImageGridIntersections --> Grid
+
+/'
+ ' Parameter Dependency
+ '/
+VectorImageGridIntersections <.down. VectorizeStrategy 
+ShapeComparisonStrategy ..> VectorImageGridIntersections
+VectorizeStrategy.ConcreteStrategy ..> VectorizeImpl : DEFAULT
+Note right on link 
+VectorizeStrategy vectorizer = 
+    VectorizeStrategy.ConcreteStrategy.DEFAULT;
+
+Nos da un ConcreteStrategy proxy de VectorizeImpl
+End Note
+
+ShapeComparisonStrategy.ConcreteStrategy ..> ShapeComparisonDefault : DEFAULT
+Note right on link 
+ShapeComparisonStrategy scs = 
+    ShapeComparisonStrategy.ConcreteStrategy.DEFAULT;
+
+Nos da un ConcreteStrategy proxy de ShapeComparisonDefault
+End Note
+/'
+ ' Method Scope Dependency
+ '/
+VectorizeImpl ..> Vector
+
 @enduml

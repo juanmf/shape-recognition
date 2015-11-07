@@ -59,7 +59,7 @@ public class VectorizeImplTest {
 //        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/bulon.jpg");
 //        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/face.jpg");
         System.out.println(img.getHeight());
-        Vectorize vectorizer = new VectorizeImpl();
+        VectorizeStrategy vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
         VectorImageGridIntersections processImage = vectorizer.processImage(img);
         System.out.println(processImage);
         File file = new File("/tmp/MarvinImage.png");

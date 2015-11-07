@@ -24,7 +24,7 @@
 
 package ar.com.docdigital.vector.config;
 
-import ar.com.docdigital.vector.Vectorize;
+import ar.com.docdigital.vector.VectorizeStrategy;
 
 /**
  * This should be replaces by spring context
@@ -32,7 +32,7 @@ import ar.com.docdigital.vector.Vectorize;
  * @author juan.fernandez
  */
 public class Config {
-    public static Vectorize.Grid getDefaultGrid() {
-        return Vectorize.Grid.DENSE;
+    public static VectorizeStrategy.Grid getDefaultGrid() {
+        return VectorizeStrategy.Grid.DENSE;
     }
 }

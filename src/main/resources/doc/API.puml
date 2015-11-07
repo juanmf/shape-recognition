@@ -1,0 +1,14 @@
+@startuml
+skinparam componentStyle uml2
+
+package lib {
+    package vector {
+        interface Vectorize
+        [VectorImageGridIntersections]
+    }
+    package vector.comparator {
+        Comparator - [VectorImageComparator]
+    }
+}
+
+@enduml

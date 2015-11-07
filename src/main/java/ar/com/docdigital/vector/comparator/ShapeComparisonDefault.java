@@ -25,30 +25,27 @@
 package ar.com.docdigital.vector.comparator;
 
 import ar.com.docdigital.vector.VectorImageGridIntersections;
-import ar.com.docdigital.vector.Vectorize;
-import ar.com.docdigital.vector.difference.IndexGenerator;
-import ar.com.docdigital.vector.difference.IndexGeneratorDefault;
+import ar.com.docdigital.vector.VectorizeStrategy;
+import ar.com.docdigital.vector.comparator.difference.IndexGenerator;
+import ar.com.docdigital.vector.comparator.difference.IndexGeneratorDefault;
 import ar.com.docdigital.vector.util.IntersectionsDifference;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
  *
  * @author juan.fernandez
  */
-public class ShapeComparisonDefault implements ShapeComparisonStrategy {
+class ShapeComparisonDefault implements ShapeComparisonStrategy {
 
     private final DistanceCalculatorStrategy dcs;
     private final IndexGenerator diffIdxGen;
-    private final Vectorize.Grid gridToCompare;
+    private final VectorizeStrategy.Grid gridToCompare;
 
-    public ShapeComparisonDefault() {
+    ShapeComparisonDefault() {
         dcs = new SimpleDistanceCalculator();
         diffIdxGen = new IndexGeneratorDefault();
-        gridToCompare = Vectorize.Grid.DENSE;
+        gridToCompare = VectorizeStrategy.Grid.DENSE;
     }
     
     @Override

@@ -32,6 +32,26 @@ import ar.com.docdigital.vector.VectorImageGridIntersections;
  */
 public interface ShapeComparisonStrategy {
 
+    /**
+     * Keep instance control from here.
+     * 
+     * Concrete classes constructors should be package private.
+     */
+    enum ConcreteStrategy implements ShapeComparisonStrategy {
+        DEFAULT (new ShapeComparisonDefault());
+        
+        private final ShapeComparisonStrategy INSTANCE;
+        
+        ConcreteStrategy(ShapeComparisonStrategy concreteStrategy) {
+            INSTANCE = concreteStrategy;
+        }
+
+        @Override
+        public Float getDifference(VectorImageGridIntersections o1, VectorImageGridIntersections o2) {
+            return INSTANCE.getDifference(o1, o2);
+        }
+    }
+    
     Float getDifference(
             VectorImageGridIntersections o1, 
             VectorImageGridIntersections o2

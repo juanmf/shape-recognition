@@ -21,24 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package ar.com.docdigital.vector.difference;
+package ar.com.docdigital.vector.comparator.difference;
 
 import ar.com.docdigital.vector.util.IntersectionsDifference;
 
 /**
- * Comparison between VectorImageGridIntersections grid lines has two outcomes,
- * on one hand there are distances, when intersections on each grid form pairs, 
- * on the other hand we have a percentage of intersections that didn't find pair
- * called lostPoints in IntersectionsDifference, the implementations of this 
- * Interfaces should find a formula to integrate both in a unique index. 
+ * The default strategy uses the formula: [distance * (1 + (Lost)⁴)]. 
  * 
- * Consider that:
- * Given a pair of grids with 100% of lost points, the distance will be 0, as 
- * there was no matching pair of intersections.
+ * Where <b>Lost</b> is the percentage of lost points divided by PROP_LOST_THRESHOLD.
+ * So any % below PROP_LOST_THRESHOLD would render (1>K)⁴ adjusting distance by 
+ * less than 2  
  * 
  * @author juan.fernandez
  */
-public interface IndexGenerator {
-    float getDifferenceIndex(IntersectionsDifference diff); 
+public class IndexGeneratorDefault implements IndexGenerator {
+
+    private static final float PROP_LOST_THRESHOLD = 25f;  
+    private static final float DIVERGENCE_EXPONENT = 4;  
+    
+    @Override
+    public float getDifferenceIndex(IntersectionsDifference diff) {
+        float propLost = 100 * diff.lostPoints / (float) diff.totalPoints;
+        double divergenceIdx = Math.pow(propLost / PROP_LOST_THRESHOLD, DIVERGENCE_EXPONENT);
+        return (float) (diff.distance * (1 + divergenceIdx));
+    }
 }
