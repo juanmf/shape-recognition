@@ -28,6 +28,7 @@ import ar.com.docdigital.vector.VectorImageGridIntersections;
 import ar.com.docdigital.vector.VectorizeStrategy;
 import ar.com.docdigital.vector.comparator.difference.IndexGenerator;
 import ar.com.docdigital.vector.comparator.difference.IndexGeneratorDefault;
+import ar.com.docdigital.vector.config.Config;
 import ar.com.docdigital.vector.util.IntersectionsDifference;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +41,11 @@ class ShapeComparisonDefault implements ShapeComparisonStrategy {
 
     private final DistanceCalculatorStrategy dcs;
     private final IndexGenerator diffIdxGen;
-    private final VectorizeStrategy.Grid gridToCompare;
+    private final VectorizeStrategy.Grid gridToCompare = Config.getDefaultGrid();
 
     ShapeComparisonDefault() {
         dcs = new SimpleDistanceCalculator();
         diffIdxGen = new IndexGeneratorDefault();
-        gridToCompare = VectorizeStrategy.Grid.DENSE;
     }
     
     @Override
@@ -57,9 +57,9 @@ class ShapeComparisonDefault implements ShapeComparisonStrategy {
         int lostPoints = 0;
         float distance = 0;
         Map<Float, List<Float>> o1XIntxn = o1.getConstXintersect().get(gridToCompare);
-        Map<Float, List<Float>> o2XIntxn = o1.getConstXintersect().get(gridToCompare);
-        Map<Float, List<Float>> o1YIntxn = o1.getConstXintersect().get(gridToCompare);
-        Map<Float, List<Float>> o2YIntxn = o1.getConstXintersect().get(gridToCompare);
+        Map<Float, List<Float>> o2XIntxn = o2.getConstXintersect().get(gridToCompare);
+        Map<Float, List<Float>> o1YIntxn = o1.getConstYintersect().get(gridToCompare);
+        Map<Float, List<Float>> o2YIntxn = o2.getConstYintersect().get(gridToCompare);
         for (Float f : gridToCompare.getLines()) {
             IntersectionsDifference diffX = getMinLineDiff(o1XIntxn.get(f), o2XIntxn.get(f));
             IntersectionsDifference diffY = getMinLineDiff(o1YIntxn.get(f), o2YIntxn.get(f));
@@ -136,7 +136,7 @@ class ShapeComparisonDefault implements ShapeComparisonStrategy {
             int lastIxd = -1, biggerIdx = 0;
             float last = Float.MAX_VALUE;
             while (null == pair[1]) {
-                while (null == bigger[biggerIdx] && biggerIdx < bigger.length) {
+                while (biggerIdx < bigger.length && null == bigger[biggerIdx]) {
                     biggerIdx++;
                 }
                 if (biggerIdx >= bigger.length) {

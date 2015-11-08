@@ -38,4 +38,9 @@ package ar.com.docdigital.vector.util;
         this.lostPoints = lostPoints;
         this.distance = distance;
     }
+
+    @Override
+    public String toString() {
+        return "distance: " + distance + ", totalPoints:" + totalPoints + ", lostPoints:" + lostPoints;
+    }
 }

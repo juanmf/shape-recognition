@@ -47,8 +47,10 @@ import marvin.util.MarvinPluginLoader;
  * vectors of length {@link #SQUARE_RADIUS}. Then normalize it so as to make it 
  * comparable with other shapes.
  * 
+ * @threadSafe 
  * @author juan.fernandez
  */
+
 class VectorizeImpl implements VectorizeStrategy {
 
     private static final boolean debug = false;
@@ -57,7 +59,7 @@ class VectorizeImpl implements VectorizeStrategy {
     private static final MarvinImagePlugin MARVIN_PLUGIN = MarvinPluginLoader.loadImagePlugin(MARV_EDGE_PLUGIN);
     private static final int RGB_BLUE_COLOR_MASK = 0xff;
     private static final int RGB_OPAQUE_WHITE = 0xffffffff;
-    private static final int SQUARE_RADIUS = 5;
+    private static final int SQUARE_RADIUS = 3;
     private static final List<int[]> SQUARE_DELTAS;
     
     private final VectorExtractorHelper vectorExtractor;
@@ -111,7 +113,6 @@ class VectorizeImpl implements VectorizeStrategy {
         MARVIN_PLUGIN.process(binImg.clone(), binImg);
         MarvinImageIO.saveImage(binImg, "/tmp/MarvinImage1.png");
         List<Vector> vectors = vectorExtractor.extractVectors(binImg);
-        System.out.println(vectors);
         vectorNormalizer.normalizeVectors(vectors);
         return gridIntersectionsFinder.findGridIntersections(vectors);
     }
@@ -206,7 +207,7 @@ class VectorizeImpl implements VectorizeStrategy {
         private void followLine(
                 BufferedImage bImg, int centralCol, int centralRow, List<Vector> vectors
         ) {
-            System.out.println("centralCol:" + centralCol + " centralRow: " + centralRow);
+            if (debug) System.out.println("centralCol:" + centralCol + " centralRow: " + centralRow);
             int height = bImg.getHeight();
             int width = bImg.getWidth();
             // This leaves us in (A)

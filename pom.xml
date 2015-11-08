@@ -244,8 +244,8 @@
                 <version>${plugin.compiler.version}</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <source>${java.version.source}</source>
-                    <target>${java.version.target}</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>

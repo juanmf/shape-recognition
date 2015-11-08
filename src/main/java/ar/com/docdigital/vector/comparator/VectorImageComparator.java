@@ -75,7 +75,7 @@ public class VectorImageComparator implements Comparator<VectorImageGridIntersec
         return getDifference(o1, compareAgainst);
     }
     
-    private Float getDifference(
+    public Float getDifference(
             VectorImageGridIntersections o1, 
             VectorImageGridIntersections o2
     ) {

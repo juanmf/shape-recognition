@@ -113,10 +113,15 @@ public final class VectorImageGridIntersections implements Serializable {
     public String toString() {
         ToStringHelper toString = this.new ToStringHelper();
         StringBuilder out = new StringBuilder();
+        out.append(super.toString());
+        out.append(System.lineSeparator());
+        out.append(id);
+        out.append(System.lineSeparator());
+        
         VectorizeStrategy.Grid grid = Config.getDefaultGrid();
 //        for (Vectorize.Grid grid : Vectorize.Grid.values()) {
             long[] frame = new long[grid.getLines().length];
-            Arrays.fill(frame, 0);
+            Arrays.fill(frame, 0L);
             toString.markIntersectionsInframe(grid, frame);
             toString.appendFrameToOutput(frame, out);
 //        }
@@ -127,7 +132,8 @@ public final class VectorImageGridIntersections implements Serializable {
         private int getLineNumForFloat(float l) {
             int line = Math.round(l * GRID_FRAME_RATIO + ((GRID_FRAME_SIZE + 1) / 2));
             if (line < 0 || line > GRID_FRAME_SIZE) {
-                throw new IllegalArgumentException("The line " + line + "falls out of the frame for float " + l);
+//                throw new IllegalArgumentException("The line " + line + ". falls out of the frame for float " + l);
+                return line < 0 ? 0 : GRID_FRAME_SIZE;
             }
             return line;
         }
@@ -146,20 +152,23 @@ public final class VectorImageGridIntersections implements Serializable {
                 int col = getLineNumForFloat(l);
                 for (Float intersect : xGridIntersects.get(l)) {
                     row = getLineNumForFloat(intersect);
-                    frame[row] = frame[row] | (1 << col);
+                    frame[row] = frame[row] | (1L << col);
                 }
 
                 row = getLineNumForFloat(l);
                 for (Float intersect : yGridIntersects.get(l)) {
                     col = getLineNumForFloat(intersect);
-                    frame[row] = frame[row] | (1 << col);
+                    frame[row] = frame[row] | (1L << col);
                 }
             }
         }
 
         public void appendFrameToOutput(long[] frame, StringBuilder out) {
-            for (long i : frame) {
-                out.append(String.format("%40s", Long.toBinaryString(i)).replace(' ', '0'));
+            for (int i = frame.length - 1; i >= 0; i--) {
+                out.append(
+                        String.format("%40s", Long.toBinaryString(frame[i]))
+                        .replace(' ', '0')
+                    );
                 out.append(System.lineSeparator());
             }
             out.append(System.lineSeparator());

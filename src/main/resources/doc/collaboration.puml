@@ -15,7 +15,9 @@ package "lib" {
         /' 
          ' Classes
          '/
-        class ShapeComparisonDefault
+        class ShapeComparisonDefault {
+            - IndexGenerator diffIdxGen
+        }
         class VectorImageComparator << (C, Grey) API >>{
             -VectorImageGridIntersections compareAgainst
             -ShapeComparisonStrategy scs
@@ -73,12 +75,14 @@ package "lib" {
         /' 
          ' Interfaces
          '/
-        interface IndexGenerator
+        interface IndexGenerator {
+            + float getDifferenceIndex(IntersectionsDifference diff)
+        }
 
         /' 
          ' Classes
          '/
-        class IndexGeneratorDefault
+        class IndexGeneratorDefault 
     }
 
     package "ar.com.docdigital.vector.util" {
@@ -141,9 +145,7 @@ VectorImageComparator o-- "1" VectorImageGridIntersections : compareAgainst >
 /'
  ' Reference Dependency
  '/
-ShapeComparisonDefault --> IntersectionsDifference
 ShapeComparisonDefault --> IndexGenerator
-IndexGenerator --> IntersectionsDifference
 VectorImageGridIntersections --> Grid
 
 /'
@@ -166,9 +168,13 @@ ShapeComparisonStrategy scs =
 
 Nos da un ConcreteStrategy proxy de ShapeComparisonDefault
 End Note
+
+
 /'
  ' Method Scope Dependency
  '/
+ShapeComparisonDefault ..> IntersectionsDifference
 VectorizeImpl ..> Vector
+IndexGenerator ..> IntersectionsDifference
 
 @enduml

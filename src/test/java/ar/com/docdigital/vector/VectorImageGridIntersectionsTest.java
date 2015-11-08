@@ -23,123 +23,96 @@
  */
 package ar.com.docdigital.vector;
 
-import java.util.List;
-import java.util.Map;
+import ar.com.docdigital.vector.comparator.ShapeComparisonStrategy;
+import ar.com.docdigital.vector.comparator.VectorImageComparator;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import marvin.image.MarvinImage;
+import marvin.io.MarvinImageIO;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author juan.fernandez
  */
 public class VectorImageGridIntersectionsTest {
-    
+
     public VectorImageGridIntersectionsTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
-    /**
-     * Test of getConstXintersect method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testGetConstXintersect() {
-        System.out.println("getConstXintersect");
-        VectorImageGridIntersections instance = null;
-        Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> expResult = null;
-        Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> result = instance.getConstXintersect();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @org.junit.Test
+    public void testSerialization() {
+
+        VectorizeStrategy vectorizer;
+        MarvinImage img;
+        VectorImageGridIntersections grid, deserializedGrid;
+
+//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/batman.png");
+//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/bulon.jpg");
+        img = MarvinImageIO.loadImage("src/main/resources/shape1.png");
+        System.out.println(img.getHeight());
+        vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
+        grid = vectorizer.processImage(img);
+        System.out.println(grid);
+
+        try {
+            FileOutputStream fileOut
+                    = new FileOutputStream("/tmp/shape.ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(grid);
+            out.close();
+            fileOut.close();
+            System.out.println("Serialized data is saved in /tmp/shape.ser");
+
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+
+        try {
+            FileInputStream fileIn = new FileInputStream("/tmp/shape.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            deserializedGrid = (VectorImageGridIntersections) in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+            return;
+        } catch (ClassNotFoundException c) {
+            System.out.println("Employee class not found");
+            c.printStackTrace();
+            return;
+        }
+        
+        VectorImageComparator comparator = new VectorImageComparator(
+                grid, ShapeComparisonStrategy.ConcreteStrategy.DEFAULT
+            );
+        Assert.assertEquals(grid, deserializedGrid);
+        Assert.assertEquals(new Float(0f), comparator.getDifference(deserializedGrid, grid));
+        System.out.println(deserializedGrid);
+        
     }
 
-    /**
-     * Test of getConstYintersect method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testGetConstYintersect() {
-        System.out.println("getConstYintersect");
-        VectorImageGridIntersections instance = null;
-        Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> expResult = null;
-        Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> result = instance.getConstYintersect();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of toString method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testToString() {
-        System.out.println("toString");
-        VectorImageGridIntersections instance = null;
-        String expResult = "";
-        String result = instance.toString();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getId method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testGetId() {
-        System.out.println("getId");
-        VectorImageGridIntersections instance = null;
-        Long expResult = null;
-        Long result = instance.getId();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of hashCode method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testHashCode() {
-        System.out.println("hashCode");
-        VectorImageGridIntersections instance = null;
-        int expResult = 0;
-        int result = instance.hashCode();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of equals method, of class VectorImageGridIntersections.
-     */
-    @Test
-    public void testEquals() {
-        System.out.println("equals");
-        Object obj = null;
-        VectorImageGridIntersections instance = null;
-        boolean expResult = false;
-        boolean result = instance.equals(obj);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }

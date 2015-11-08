@@ -55,15 +55,31 @@ public class VectorizeImplTest {
      */
     @org.junit.Test
     public void testProcessImage() {
-        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/shapes.gif");
+        VectorizeStrategy vectorizer;
+        MarvinImage img;
+        VectorImageGridIntersections processImage;
+        
+//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/batman.png");
 //        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/bulon.jpg");
-//        MarvinImage img = MarvinImageIO.loadImage("src/main/resources/face.jpg");
+        img = MarvinImageIO.loadImage("src/main/resources/shape1.png");
         System.out.println(img.getHeight());
-        VectorizeStrategy vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
-        VectorImageGridIntersections processImage = vectorizer.processImage(img);
+        vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
+        processImage = vectorizer.processImage(img);
         System.out.println(processImage);
+        
+        img = MarvinImageIO.loadImage("src/main/resources/shape2.png");
+        System.out.println(img.getHeight());
+        vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
+        processImage = vectorizer.processImage(img);
+        System.out.println(processImage);
+        
+        img = MarvinImageIO.loadImage("src/main/resources/shape3.png");
+        System.out.println(img.getHeight());
+        vectorizer = VectorizeStrategy.ConcreteStrategy.DEFAULT;
+        processImage = vectorizer.processImage(img);
+        System.out.println(processImage);
+        
         File file = new File("/tmp/MarvinImage.png");
         Assert.assertTrue(file.exists());
-    }
-    
+    }    
 }
