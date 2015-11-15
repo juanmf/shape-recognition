@@ -28,7 +28,28 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
+ * Usage:
+ * 
+ * Stopwatch.start("watchName");
+ * ...
+ * Stopwatch.end("watchName");
+ * 
+ * Stopwatch.start("loadingResource");
+ * ...
+ * Stopwatch.end("loadingResource");
+ * ...
+ * 
+ * Stopwatch.getRunning().entrySet().stream().forEach(e -> {
+ *            System.out.println(e.getKey() + " => nanos: " + e.getValue().getElapsedTime());
+ *      });
+ * 
+ * Output would be:
+ * 
+ * InitComparator => nanos: 1800910
+ * loadingAgainstPattern => nanos: 187572841
+ * loadingResources => nanos: 1013792631
+ * sorting => nanos: 3599532
+ * 
  * @author juan.fernandez
  */
 public class Stopwatch {
