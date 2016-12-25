@@ -24,8 +24,17 @@
 
 package ar.com.docdigital.vector;
 
-import ar.com.docdigital.vector.util.Vector;
 import ar.com.docdigital.vector.config.Config;
+import ar.com.docdigital.vector.util.LinearToSquareIndexHelper;
+import ar.com.docdigital.vector.util.Vector;
+import marvin.image.MarvinColorModelConverter;
+import marvin.image.MarvinImage;
+import marvin.io.MarvinImageIO;
+import marvin.plugin.MarvinImagePlugin;
+import marvin.util.MarvinPluginLoader;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,19 +42,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import javax.imageio.ImageIO;
-import marvin.image.MarvinColorModelConverter;
-import marvin.image.MarvinImage;
-import marvin.io.MarvinImageIO;
-import marvin.plugin.MarvinImagePlugin;
-import marvin.util.MarvinPluginLoader;
+import java.util.stream.Stream;
 
 /**
  * Default implementation for vectorization. 
  * 
  * It uses Marvin FW to detect object boundary, and then follows the lines generating
- * vectors of length {@link #SQUARE_RADIUS}. Then normalize it so as to make it 
- * comparable with other shapes.
+ * vectors. Then normalize it so as to make it comparable with other shapes.
  * 
  * @threadSafe 
  * @author juan.fernandez
@@ -55,68 +58,38 @@ class VectorizeImpl implements VectorizeStrategy {
 
     private static final boolean debug = false;
     
-    private static final String MARV_EDGE_PLUGIN = "org.marvinproject.image.morphological.boundary.jar";
-    private static final MarvinImagePlugin MARVIN_PLUGIN = MarvinPluginLoader.loadImagePlugin(MARV_EDGE_PLUGIN);
+    private static final String MARV_EDGE_PLUGIN_NAME = "org.marvinproject.image.morphological.boundary.jar";
+    private static final MarvinImagePlugin MARV_EDGE_PLUGIN = MarvinPluginLoader.loadImagePlugin(MARV_EDGE_PLUGIN_NAME);
     private static final int RGB_BLUE_COLOR_MASK = 0xff;
     private static final int RGB_OPAQUE_WHITE = 0xffffffff;
-    private static final int SQUARE_RADIUS = 3;
-    private static final List<int[]> SQUARE_DELTAS;
-    
+
     private final VectorExtractorHelper vectorExtractor;
     private final VectorNormalizerHelper vectorNormalizer;
     private final GridIntersectionsFinderHelper gridIntersectionsFinder;
-            
-    /**
-     * Initializing Square relative coordinates.
-     * 
-     * @link #VectorExtractorHelperImpl#followLine(BufferedImage, int, int, List<Vector>) followLine 
-     */
-    static {
-        List<int[]> list = new ArrayList<>();
-        int row = SQUARE_RADIUS;
-        int col = SQUARE_RADIUS;
-        for (; row >= -SQUARE_RADIUS; row--) {
-            list.add(new int[] {row, col});
-        }
-        row++;
-        // Now we are in B
-        
-        for (; col >= -SQUARE_RADIUS; col--) {
-            list.add(new int[] {row, col});
-        }
-        col++;
-        // Now we are in C
-        
-        for (; row <= SQUARE_RADIUS; row++) {
-            list.add(new int[] {row, col});
-        }
-        row--;
-        // Now we are in D
-        
-        for (; col < SQUARE_RADIUS; col++) {
-            list.add(new int[] {row, col});
-        }
-        SQUARE_DELTAS = Collections.unmodifiableList(list);
-    }
 
     VectorizeImpl() {
-        System.out.println("Instanciando VectorizeImpl");
-        vectorExtractor = this.new VectorExtractorHelperImpl();
+        System.out.println("Initiating VectorizeImpl");
+        vectorExtractor = new VectorExtractorHelperImpl();
         vectorNormalizer = this.new VectorNormalizerHelperImpl();
-        gridIntersectionsFinder = this.new GridIntersectionsFinderImpl();
+        gridIntersectionsFinder = this.new GridIntersectionsFinderImpl(Grid.DENSE);
     }
     
     @Override
     public VectorImageGridIntersections processImage(MarvinImage img) {
-        MarvinImage binImg = MarvinColorModelConverter.rgbToBinary(img, 200);
-        MarvinImageIO.saveImage(binImg, "/tmp/MarvinImage.png");
-        MARVIN_PLUGIN.process(binImg.clone(), binImg);
-        MarvinImageIO.saveImage(binImg, "/tmp/MarvinImage1.png");
-        List<Vector> vectors = vectorExtractor.extractVectors(binImg);
+        MarvinImage binImg = applyPlugins(img);
+        List<Vector> vectors = vectorExtractor.extractVectors(binImg.getBufferedImage());
         vectorNormalizer.normalizeVectors(vectors);
         return gridIntersectionsFinder.findGridIntersections(vectors);
     }
-    
+
+    private MarvinImage applyPlugins(MarvinImage img) {
+        MarvinImage binImg = MarvinColorModelConverter.rgbToBinary(img, 127);
+        MarvinImageIO.saveImage(binImg, "/tmp/MarvinImage.png");
+        MARV_EDGE_PLUGIN.process(binImg.clone(), binImg);
+        MarvinImageIO.saveImage(binImg, "/tmp/MarvinImage1.png");
+        return binImg;
+    }
+
     private static void saveImage(BufferedImage bImg, int row, int col) {
         if (!debug) {
             return;
@@ -127,10 +100,10 @@ class VectorizeImpl implements VectorizeStrategy {
         } catch (IOException | java.lang.ArrayIndexOutOfBoundsException e) {
             System.out.println("i:" + row + " j:" + col);
         }
-    } 
+    }
     
     private interface VectorExtractorHelper {
-        List<Vector> extractVectors(MarvinImage img);
+        List<Vector> extractVectors(BufferedImage img);
     }
     
     private interface VectorNormalizerHelper {
@@ -141,30 +114,68 @@ class VectorizeImpl implements VectorizeStrategy {
         VectorImageGridIntersections findGridIntersections(List<Vector> vectors);
     }
 
-    private class VectorExtractorHelperImpl implements VectorExtractorHelper {
+    private static class VectorExtractorHelperImpl implements VectorExtractorHelper {
+        private static final int SQUARE_RADIUS = 3;
+        private static final List<int[]> SQUARE_DELTAS;
+
+        /**
+         * Initializing Square relative coordinates.
+         *
+         * That is, a list of coordinates used to traverse the perimeter of a square around a given point.
+         * <pre>
+         * A → B
+         * ↑ x ↓
+         * D ← C
+         * </pre>
+         *
+         * @link #VectorExtractorHelperImpl#followLine(BufferedImage, int, int, List<Vector>) followLine
+         */
+        static {
+            List<int[]> sides = new ArrayList<>();
+            // A → [B
+            Stream.iterate(-SQUARE_RADIUS, n -> n + 1)
+                    .limit(2 * SQUARE_RADIUS)
+                    .forEach(col -> sides.add(new int[] {-SQUARE_RADIUS, col}));
+
+            // B → [C
+            Stream.iterate(-SQUARE_RADIUS, n -> n + 1)
+                    .limit(2 * SQUARE_RADIUS)
+                    .forEach(row -> sides.add(new int[] {row, SQUARE_RADIUS}));
+
+            // C → [D
+            Stream.iterate(SQUARE_RADIUS, n -> n - 1)
+                    .limit(2 * SQUARE_RADIUS)
+                    .forEach(col -> sides.add(new int[] {SQUARE_RADIUS, col}));
+
+            // D → [A
+            Stream.iterate(SQUARE_RADIUS, n -> n - 1)
+                    .limit(2 * SQUARE_RADIUS)
+                    .forEach(row -> sides.add(new int[] {row, -SQUARE_RADIUS}));
+
+            SQUARE_DELTAS = Collections.unmodifiableList(sides);
+        }
 
         /**
          * Finds every significant border in edgeDetected img, and replace every 
          * straight line by a vector whose endpoints are integer pairs, corresponding 
          * to the right pixels in the image.
          * 
-         * @param img The EdgeDetected Image.
+         * @param bImg The EdgeDetected Image.
          * @return 
          */
         @Override
-        public List<Vector> extractVectors(MarvinImage img) {
-            BufferedImage bImg = img.getBufferedImage();
+        public List<Vector> extractVectors(BufferedImage bImg) {
             List<Vector> vectors = new ArrayList<>();
-            int height = bImg.getHeight();
-            int width = bImg.getWidth();
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                        if (isPixelBlack(bImg.getRGB(col, row))) {
-                            followLine(bImg, col, row, vectors);
-                            saveImage(bImg, row, col);
-                        }
-                }
-            }
+
+            LinearToSquareIndexHelper.ParamHolder ph = new LinearToSquareIndexHelper.ParamHolder(
+                    bImg.getHeight(), bImg.getWidth(), bImg.getWidth(), 0, 0);
+
+            Stream.iterate(0, n -> n + 1)
+                    .limit(ph.getHeight() * ph.getWidth())
+                    .filter(linearIdx -> isPixelBlack(bImg.getRGB(ph.getCol(linearIdx), ph.getRow(linearIdx))))
+                    .peek(linearIdx -> followLine(bImg, ph.getCol(linearIdx), ph.getRow(linearIdx), vectors))
+                    .forEach(linearIdx -> saveImage(bImg, ph.getRow(linearIdx), ph.getCol(linearIdx)));
+
             return vectors;
         }
 
@@ -210,20 +221,15 @@ class VectorizeImpl implements VectorizeStrategy {
             if (debug) System.out.println("centralCol:" + centralCol + " centralRow: " + centralRow);
             int height = bImg.getHeight();
             int width = bImg.getWidth();
-            // This leaves us in (A)
-
-            for (int[] coords : SQUARE_DELTAS) {
-                int row = centralRow + coords[0];
-                int col = centralCol + coords[1];
-                if (row > 0 &&  col > 0 && row < height &&  col < width 
-                        && isPixelBlack(bImg.getRGB(col, row))
-                ) {
-                    vectors.add(new Vector(centralCol, centralRow, col, row));
-                    eraseSquare(bImg, centralRow, centralCol);
-                    followLine(bImg, col, row, vectors);
-                    return;
-                }
-            }
+            SQUARE_DELTAS.stream()
+                    .map(point -> new int[] {centralRow + point[0], centralCol + point[1]})
+                    .filter(point -> isInside(point[0], point[1], width, height))
+                    .filter(point -> isPixelBlack(bImg.getRGB(point[1], point[0])))
+                    .peek(point -> vectors.add(new Vector(centralCol, centralRow, point[1], point[0])))
+                    .peek(point -> eraseSquare(bImg, centralRow, centralCol))
+                    // TODO: This line causes stack overflow
+                    //.peek(point -> followLine(bImg, point[1], point[0], vectors))
+                    .findFirst();
         }
 
         /**
@@ -237,19 +243,28 @@ class VectorizeImpl implements VectorizeStrategy {
          * @param centralCol The pixel column
          */
         private void eraseSquare(BufferedImage bImg, int centralRow, int centralCol) {
-            int height = bImg.getHeight();
-            int width = bImg.getWidth();
-            for (int row = centralRow - SQUARE_RADIUS + 1; row < centralRow + SQUARE_RADIUS; row++) {
-                for (int col = centralCol - SQUARE_RADIUS + 1; col < centralCol + SQUARE_RADIUS; col++) {
-                    if (row > 0 &&  col > 0 && row < height &&  col < width 
-                        && isPixelBlack(bImg.getRGB(col, row))
-                    ) {
-                        bImg.setRGB(col, row, RGB_OPAQUE_WHITE);
-                    }
-                }
-            }
+            final int firstRow = centralRow - SQUARE_RADIUS + 1;
+            final int firstCol = centralCol - SQUARE_RADIUS + 1;
+            final int subSquareWith = (2 * SQUARE_RADIUS);
+            LinearToSquareIndexHelper.ParamHolder ph = new LinearToSquareIndexHelper.ParamHolder(
+                    bImg.getHeight(), bImg.getWidth(), subSquareWith, firstRow, firstCol);
+
+            Stream.iterate(0, n -> n + 1)
+                    .limit((long) Math.pow(subSquareWith, 2))
+                    .filter(linearIdx -> isInside(ph, linearIdx))
+                    .filter(linearIdx -> isPixelBlack(bImg.getRGB(ph.getCol(linearIdx), ph.getRow(linearIdx))))
+                    .forEach(linearIdx -> bImg.setRGB(ph.getCol(linearIdx), ph.getRow(linearIdx), Color.WHITE.getRGB()));
         }
-        
+
+        private boolean isInside(int row, int col, int width, int height) {
+            return row > 0 &&  col > 0 && row < height &&  col < width;
+        }
+
+        private boolean isInside(LinearToSquareIndexHelper.ParamHolder ph, int linearIdx) {
+            int row = ph.getRow(linearIdx);
+            int col = ph.getCol(linearIdx);
+            return row > 0 && col > 0 && row < ph.getHeight() && col < ph.getWidth();
+        }
     }
     
     private class VectorNormalizerHelperImpl implements VectorNormalizerHelper {
@@ -320,7 +335,12 @@ class VectorizeImpl implements VectorizeStrategy {
     }
 
     private class GridIntersectionsFinderImpl implements GridIntersectionsFinderHelper {
-        
+        final VectorizeStrategy.Grid grid;
+
+        private GridIntersectionsFinderImpl(VectorizeStrategy.Grid grid) {
+            this.grid = grid;
+        }
+
         @Override
         public VectorImageGridIntersections findGridIntersections(List<Vector> vectors) {
 
@@ -333,8 +353,6 @@ class VectorizeImpl implements VectorizeStrategy {
         }
 
         private void findCrossedGridLines(Vector vector, VectorImageGridIntersections.Builder builder) {
-            VectorizeStrategy.Grid grid = Config.getDefaultGrid();
-                
             for (float f : grid.getLines()) {
                 if ((vector.endAx <= f && vector.endBx >= f)
                         || (vector.endAx >= f && vector.endBx <= f)

@@ -26,6 +26,9 @@ package ar.com.docdigital.vector;
 
 import marvin.image.MarvinImage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author juan.fernandez
@@ -56,13 +59,22 @@ public interface VectorizeStrategy {
         DENSE (0.1f),
         MEDIUM (0.3f),
         LIGHT (0.6f);
-        
+
+        private static Map<Float, Grid> grids = new HashMap<>();
+
+        static {
+            grids.put(0.1f, DENSE);
+            grids.put(0.3f, MEDIUM);
+            grids.put(0.6f, LIGHT);
+        }
+
         /**
          * Represents the lines in the grid, in a centered square frame that spans
          * from -2 to 2 in both coordinates (X & Y)
          */
         private final float[] constLines;
-        
+        private final float increment;
+
         Grid(float increment) {
             constLines = new float[(int) (4/increment)];
             int c = 0;
@@ -71,10 +83,22 @@ public interface VectorizeStrategy {
                 constLines[c++] = i;
                 i += increment;
             }
+            this.increment = increment;
+        }
+
+        public static Grid forIncrement(Float increment) {
+            if (! grids.containsKey(increment)) {
+                throw new IllegalArgumentException("there is no such increment.");
+            }
+            return grids.get(increment);
         }
         
         public float[] getLines() {
             return constLines;
+        }
+
+        public float getIncrement() {
+            return increment;
         }
     }
     

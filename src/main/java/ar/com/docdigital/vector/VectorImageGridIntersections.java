@@ -210,7 +210,7 @@ public final class VectorImageGridIntersections implements Serializable {
         // TODO: las implementaciones de Map no garantizan compatibilidad entre 
         // distintas JVM, buscar una representacion agnostica.
         private static final long serialVersionUID = 234098243823485285L;
-        private final Long id;
+            private final Long id;
         private final Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> constXintersect;
         private final Map<VectorizeStrategy.Grid, Map<Float, List<Float>>> constYintersect;
 

@@ -85,7 +85,7 @@ public class VectorImageComparatorTest {
         VectorImageGridIntersections grid, gridAgainst;
 
         Stopwatch.start("loadingAgainstPattern");
-        gridAgainst = getCmpAgainst("MercedesB.png");
+        gridAgainst = getCmpAgainst("bearHand2.png");
         Stopwatch.end("loadingAgainstPattern");
         
         Stopwatch.start("InitComparator");
@@ -149,9 +149,10 @@ public class VectorImageComparatorTest {
             VectorImageGridIntersections gridAgainst
     ) {
         
-        for (int i = patternsDB.size()-1; i > patternsDB.size() - 10; i--) {
+        for (int i = patternsDB.size()-1; i >= 0; i--) {
             out(patternsDB.get(i), RUNLEVEL_INFO);
             out(comparator.getDifference(patternsDB.get(i), gridAgainst), RUNLEVEL_INFO);
+            out(comparator.getIntersectionsDifference(patternsDB.get(i), gridAgainst), RUNLEVEL_INFO);
         }
         
         Stopwatch.getRunning().entrySet().stream().forEach(e -> {

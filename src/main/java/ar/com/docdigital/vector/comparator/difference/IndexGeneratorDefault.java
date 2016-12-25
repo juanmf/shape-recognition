@@ -36,7 +36,7 @@ import ar.com.docdigital.vector.util.IntersectionsDifference;
  */
 public class IndexGeneratorDefault implements IndexGenerator {
 
-    private static final float PROP_LOST_THRESHOLD = 25f;  
+    private static final float PROP_LOST_THRESHOLD = 15f;
     private static final float DIVERGENCE_EXPONENT = 4;  
     
     @Override

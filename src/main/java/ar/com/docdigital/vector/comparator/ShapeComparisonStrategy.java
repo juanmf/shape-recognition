@@ -25,6 +25,7 @@
 package ar.com.docdigital.vector.comparator;
 
 import ar.com.docdigital.vector.VectorImageGridIntersections;
+import ar.com.docdigital.vector.util.IntersectionsDifference;
 
 /**
  *
@@ -39,9 +40,9 @@ public interface ShapeComparisonStrategy {
      */
     enum ConcreteStrategy implements ShapeComparisonStrategy {
         DEFAULT (new ShapeComparisonDefault());
-        
+
         private final ShapeComparisonStrategy INSTANCE;
-        
+
         ConcreteStrategy(ShapeComparisonStrategy concreteStrategy) {
             INSTANCE = concreteStrategy;
         }
@@ -50,10 +51,20 @@ public interface ShapeComparisonStrategy {
         public Float getDifference(VectorImageGridIntersections o1, VectorImageGridIntersections o2) {
             return INSTANCE.getDifference(o1, o2);
         }
+
+        @Override
+        public IntersectionsDifference getIntersectionsDifference(VectorImageGridIntersections o1, VectorImageGridIntersections o2) {
+            return INSTANCE.getIntersectionsDifference(o1, o2);
+        }
     }
     
     Float getDifference(
             VectorImageGridIntersections o1, 
             VectorImageGridIntersections o2
-    );    
+    );
+
+    IntersectionsDifference getIntersectionsDifference(
+            VectorImageGridIntersections o1,
+            VectorImageGridIntersections o2
+    );
 }

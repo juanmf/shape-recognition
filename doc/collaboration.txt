@@ -1,0 +1,301 @@
+@startuml
+
+' Created by juanmf@gmail.com
+
+' Using left to right direction to try a better layout feel free to edit
+left to right direction
+' Participants 
+
+class ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelperImpl {
+--
+-   VectorizeImpl$VectorNormalizerHelperImpl(c VectorizeImpl) 
++  normalizeVectors( List< Vector>)  : void
+-  adjustAverageDistanceToOne( List< Vector>)  : void
+-  adjustOriginToCenterOfMass( List< Vector>)  : void
+
+}
+class ar.com.docdigital.vector.config.Config {
+--
++   Config() 
++  getDefaultGrid()  :  VectorizeStrategy$Grid
+
+}
+class ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderImpl {
+--
+-   VectorizeImpl$GridIntersectionsFinderImpl(c VectorizeImpl) 
++  findGridIntersections( List< Vector>)  :  VectorImageGridIntersections
+-  findCrossedGridLines(c Vector, c VectorImageGridIntersections$Builder)  : void
+-  getIntersection(float, float, float)  :  Float
+
+}
+interface ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelper {
+--
++  normalizeVectors( List< Vector>)  : void
+
+}
+class ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelperImpl {
+--
+-   VectorizeImpl$VectorExtractorHelperImpl(c VectorizeImpl) 
++  extractVectors(c MarvinImage)  :  List
+-  eraseSquare(c BufferedImage, int, int)  : void
+-  followLine(c BufferedImage, int, int,  List< Vector>)  : void
+-  isPixelBlack(int)  : boolean
+
+}
+class ar.com.docdigital.vector.VectorizeImpl {
+-  MARVIN_PLUGIN : i MarvinImagePlugin
+-  MARV_EDGE_PLUGIN : c String
+-  RGB_BLUE_COLOR_MASK : int
+-  RGB_OPAQUE_WHITE : int
+-  SQUARE_DELTAS :  List<int[]>
+-  SQUARE_RADIUS : int
+-  debug : boolean
+-  gridIntersectionsFinder : i VectorizeImpl$GridIntersectionsFinderHelper
+-  vectorExtractor : i VectorizeImpl$VectorExtractorHelper
+-  vectorNormalizer : i VectorizeImpl$VectorNormalizerHelper
+--
+~   VectorizeImpl() 
++  processImage(c MarvinImage)  :  VectorImageGridIntersections
+-  saveImage(c BufferedImage, int, int)  : void
+
+}
+
+interface ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelper {
+--
++  extractVectors(c MarvinImage)  :  List
+
+}
+interface ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderHelper {
+--
++  findGridIntersections( List< Vector>)  :  VectorImageGridIntersections
+
+}
+
+class ar.com.docdigital.vector.VectorImageGridIntersections$Builder {
+-  constXintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+-  constYintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+--
++   VectorImageGridIntersections$Builder() 
++  addXintersect(c Float, c Float)  :  VectorImageGridIntersections$Builder
++  addYintersect(c Float, c Float)  :  VectorImageGridIntersections$Builder
++  build()  :  VectorImageGridIntersections
+
+}
+
+
+class ar.com.docdigital.vector.VectorImageGridIntersections {
+-  DEFAULT_GRID : c VectorizeStrategy$Grid
+-  FRAME_LONG_STRING_CUT_POINT : int
+-  GRID_FRAME_RATIO : int
+-  GRID_FRAME_SIZE : int
+-  ID_GENERATOR : c AtomicLong
+-  constXintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+-  constYintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+-  id : c Long
+-  serialVersionUID : long
+--
++   VectorImageGridIntersections( Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>,  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>) 
++   VectorImageGridIntersections( Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>,  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>, c Long) 
++  equals(c Object)  : boolean
++  getConstXintersect()  :  Map
++  getConstYintersect()  :  Map
++  getId()  :  Long
++  hashCode()  : int
++  toString()  :  String
+-  readObject(c ObjectInputStream)  : void
+-  writeReplace()  :  Object
+
+}
+class ar.com.docdigital.vector.util.Vector {
++  endAx : float
++  endAy : float
++  endBx : float
++  endBy : float
+--
++   Vector(float, float, float, float) 
++  equals(c Object)  : boolean
++  hashCode()  : int
++  toString()  :  String
+
+}
+class ar.com.docdigital.vector.comparator.difference.IndexGeneratorDefault {
+-  DIVERGENCE_EXPONENT : float
+-  PROP_LOST_THRESHOLD : float
+--
++   IndexGeneratorDefault() 
++  getDifferenceIndex(c IntersectionsDifference)  : float
+
+}
+class ar.com.docdigital.vector.util.IntersectionsDifference {
++  distance : float
++  lostPoints : int
++  totalPoints : int
+--
++   IntersectionsDifference(int, int, float) 
++  toString()  :  String
+
+}
+enum ar.com.docdigital.vector.VectorizeStrategy$ConcreteStrategy {
++  DEFAULT : c VectorizeStrategy$ConcreteStrategy
+-  INSTANCE : i VectorizeStrategy
+--
+-   VectorizeStrategy$ConcreteStrategy(i VectorizeStrategy) 
++  processImage(c MarvinImage)  :  VectorImageGridIntersections
++  valueOf(c String)  :  VectorizeStrategy$ConcreteStrategy
++  values()  :  VectorizeStrategy$ConcreteStrategy;
+
+}
+interface ar.com.docdigital.vector.comparator.difference.IndexGenerator {
+--
++  getDifferenceIndex(c IntersectionsDifference)  : float
+
+}
+class ar.com.docdigital.vector.comparator.ShapeComparisonDefault$SimpleDistanceCalculator {
+--
+-   ShapeComparisonDefault$SimpleDistanceCalculator() 
++  getIntxnDistance( List< Float>,  List< Float>)  : float
+-  decideWhichIntxnToChoose(int, int, c Float;, int, c Float;)  : int
+-  findPair(c Float;, c Float;, int, c Float;)  : void
+-  solveConflict(int, int, c Float;, int, c Float;)  : int
+
+}
+
+interface java.util.Comparator <T extends c Object> {
+--
++  compare(T, T)  : int
++  comparing( Function<? super T, ? extends U>)  :  Comparator
++  comparing( Function<? super T, ? extends U>,  Comparator<? super U>)  :  Comparator
++  comparingDouble( ToDoubleFunction<? super T>)  :  Comparator
++  comparingInt( ToIntFunction<? super T>)  :  Comparator
++  comparingLong( ToLongFunction<? super T>)  :  Comparator
++  equals(c Object)  : boolean
++  naturalOrder()  :  Comparator
++  nullsFirst( Comparator<? super T>)  :  Comparator
++  nullsLast( Comparator<? super T>)  :  Comparator
++  reverseOrder()  :  Comparator
++  reversed()  :  Comparator
++  thenComparing( Comparator<? super T>)  :  Comparator
++  thenComparing( Function<? super T, ? extends U>)  :  Comparator
++  thenComparing( Function<? super T, ? extends U>,  Comparator<? super U>)  :  Comparator
++  thenComparingDouble( ToDoubleFunction<? super T>)  :  Comparator
++  thenComparingInt( ToIntFunction<? super T>)  :  Comparator
++  thenComparingLong( ToLongFunction<? super T>)  :  Comparator
+
+}
+enum ar.com.docdigital.vector.comparator.ShapeComparisonStrategy$ConcreteStrategy {
++  DEFAULT : c ShapeComparisonStrategy$ConcreteStrategy
+-  INSTANCE : i ShapeComparisonStrategy
+--
+-   ShapeComparisonStrategy$ConcreteStrategy(i ShapeComparisonStrategy) 
++  getDifference(c VectorImageGridIntersections, c VectorImageGridIntersections)  :  Float
++  valueOf(c String)  :  ShapeComparisonStrategy$ConcreteStrategy
++  values()  :  ShapeComparisonStrategy$ConcreteStrategy;
+
+}
+interface ar.com.docdigital.vector.comparator.ShapeComparisonDefault$DistanceCalculatorStrategy {
+--
++  getIntxnDistance( List< Float>,  List< Float>)  : float
+
+}
+interface ar.com.docdigital.vector.comparator.ShapeComparisonStrategy {
+--
++  getDifference(c VectorImageGridIntersections, c VectorImageGridIntersections)  :  Float
+
+}
+class ar.com.docdigital.vector.comparator.VectorImageComparator {
+-  compareAgainst : c VectorImageGridIntersections
+-  comparisonCache :  Map< Long, Float>
+-  scs : i ShapeComparisonStrategy
+--
++   VectorImageComparator(c VectorImageGridIntersections, i ShapeComparisonStrategy) 
++  compare(c VectorImageGridIntersections, c VectorImageGridIntersections)  : int
++  getDifference(c VectorImageGridIntersections, c VectorImageGridIntersections)  :  Float
+-  getDifference(c VectorImageGridIntersections)  :  Float
+
+}
+class ar.com.docdigital.vector.VectorImageGridIntersections$ToStringHelper {
+--
+-   VectorImageGridIntersections$ToStringHelper(c VectorImageGridIntersections) 
++  appendFrameToOutput(class [J, c StringBuilder)  : void
++  markIntersectionsInframe(c VectorizeStrategy$Grid, class [J)  : void
+-  getLineNumForFloat(float)  : int
+
+}
+class ar.com.docdigital.vector.VectorImageGridIntersections$SerializationProxy {
+-  constXintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+-  constYintersect :  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+-  id : c Long
+-  serialVersionUID : long
+--
+~   VectorImageGridIntersections$SerializationProxy(c VectorImageGridIntersections) 
+-  readResolve()  :  Object
+
+}
+enum ar.com.docdigital.vector.VectorizeStrategy$Grid {
++  DENSE : c VectorizeStrategy$Grid
++  LIGHT : c VectorizeStrategy$Grid
++  MEDIUM : c VectorizeStrategy$Grid
+-  constLines : class [F
+--
+-   VectorizeStrategy$Grid(float) 
++  getLines()  : [F
++  valueOf(c String)  :  VectorizeStrategy$Grid
++  values()  :  VectorizeStrategy$Grid;
+
+}
+class ar.com.docdigital.vector.comparator.ShapeComparisonDefault {
+-  dcs : i ShapeComparisonDefault$DistanceCalculatorStrategy
+-  diffIdxGen : i IndexGenerator
+-  gridToCompare : c VectorizeStrategy$Grid
+--
+~   ShapeComparisonDefault() 
++  getDifference(c VectorImageGridIntersections, c VectorImageGridIntersections)  :  Float
+-  getMinLineDiff( List< Float>,  List< Float>)  :  IntersectionsDifference
+
+}
+interface ar.com.docdigital.vector.VectorizeStrategy {
+--
++  processImage(c MarvinImage)  :  VectorImageGridIntersections
+
+}
+
+
+' Relations 
+
+ar.com.docdigital.vector.comparator.VectorImageComparator "1"  o-left-  "1" ar.com.docdigital.vector.VectorImageGridIntersections  : compareAgainst: c VectorImageGridIntersections
+ar.com.docdigital.vector.VectorImageGridIntersections "1"  o-left-  "1" java.util.concurrent.atomic.AtomicLong  : ID_GENERATOR: c AtomicLong
+ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelperImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl  : this$0: c VectorizeImpl
+ar.com.docdigital.vector.VectorImageGridIntersections "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeStrategy$Grid  : DEFAULT_GRID: c VectorizeStrategy$Grid
+ar.com.docdigital.vector.VectorImageGridIntersections$Builder "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constXintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.comparator.ShapeComparisonStrategy$ConcreteStrategy "1"  o-left-  "1" ar.com.docdigital.vector.comparator.ShapeComparisonStrategy  : INSTANCE: i ShapeComparisonStrategy
+ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl  : this$0: c VectorizeImpl
+ar.com.docdigital.vector.comparator.ShapeComparisonDefault "1"  o-left-  "1" ar.com.docdigital.vector.comparator.difference.IndexGenerator  : diffIdxGen: i IndexGenerator
+ar.com.docdigital.vector.VectorImageGridIntersections$SerializationProxy "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constXintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.VectorImageGridIntersections$SerializationProxy "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constYintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelperImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl  : this$0: c VectorizeImpl
+ar.com.docdigital.vector.VectorImageGridIntersections$Builder "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constYintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.VectorizeImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelper  : vectorExtractor: i VectorizeImpl$VectorExtractorHelper
+ar.com.docdigital.vector.comparator.ShapeComparisonDefault "1"  o-left-  "1" ar.com.docdigital.vector.comparator.ShapeComparisonDefault$DistanceCalculatorStrategy  : dcs: i ShapeComparisonDefault$DistanceCalculatorStrategy
+ar.com.docdigital.vector.VectorizeImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderHelper  : gridIntersectionsFinder: i VectorizeImpl$GridIntersectionsFinderHelper
+ar.com.docdigital.vector.VectorizeImpl "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelper  : vectorNormalizer: i VectorizeImpl$VectorNormalizerHelper
+ar.com.docdigital.vector.VectorImageGridIntersections "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constYintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.VectorImageGridIntersections "1"  o-left-  "*" ar.com.docdigital.vector.VectorizeStrategy$Grid  : constXintersect:  Map< VectorizeStrategy$Grid, Map< Float, List< Float>>>
+ar.com.docdigital.vector.VectorImageGridIntersections$ToStringHelper "1"  o-left-  "1" ar.com.docdigital.vector.VectorImageGridIntersections  : this$0: c VectorImageGridIntersections
+ar.com.docdigital.vector.VectorizeStrategy$ConcreteStrategy "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeStrategy  : INSTANCE: i VectorizeStrategy
+ar.com.docdigital.vector.comparator.ShapeComparisonDefault "1"  o-left-  "1" ar.com.docdigital.vector.VectorizeStrategy$Grid  : gridToCompare: c VectorizeStrategy$Grid
+ar.com.docdigital.vector.VectorizeImpl "1"  o-left-  "1" marvin.plugin.MarvinImagePlugin  : MARVIN_PLUGIN: i MarvinImagePlugin
+ar.com.docdigital.vector.comparator.VectorImageComparator "1"  o-left-  "1" ar.com.docdigital.vector.comparator.ShapeComparisonStrategy  : scs: i ShapeComparisonStrategy
+ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelperImpl  ..up|>  ar.com.docdigital.vector.VectorizeImpl$VectorNormalizerHelper
+"ar.com.docdigital.vector.VectorImageGridIntersections$SerializationProxy"  -()   Serializable
+ar.com.docdigital.vector.comparator.ShapeComparisonDefault  ..up|>  ar.com.docdigital.vector.comparator.ShapeComparisonStrategy
+ar.com.docdigital.vector.comparator.difference.IndexGeneratorDefault  ..up|>  ar.com.docdigital.vector.comparator.difference.IndexGenerator
+ar.com.docdigital.vector.comparator.ShapeComparisonStrategy$ConcreteStrategy  ..up|>  ar.com.docdigital.vector.comparator.ShapeComparisonStrategy
+"ar.com.docdigital.vector.VectorImageGridIntersections"  -()   Serializable
+ar.com.docdigital.vector.comparator.VectorImageComparator  ..up|>  java.util.Comparator
+ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelperImpl  ..up|>  ar.com.docdigital.vector.VectorizeImpl$VectorExtractorHelper
+ar.com.docdigital.vector.VectorizeImpl  ..up|>  ar.com.docdigital.vector.VectorizeStrategy
+ar.com.docdigital.vector.VectorizeStrategy$ConcreteStrategy  ..up|>  ar.com.docdigital.vector.VectorizeStrategy
+ar.com.docdigital.vector.comparator.ShapeComparisonDefault$SimpleDistanceCalculator  ..up|>  ar.com.docdigital.vector.comparator.ShapeComparisonDefault$DistanceCalculatorStrategy
+ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderImpl  ..up|>  ar.com.docdigital.vector.VectorizeImpl$GridIntersectionsFinderHelper
+@enduml
+

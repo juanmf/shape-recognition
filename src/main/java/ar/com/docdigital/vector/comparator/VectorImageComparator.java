@@ -25,6 +25,8 @@
 package ar.com.docdigital.vector.comparator;
 
 import ar.com.docdigital.vector.VectorImageGridIntersections;
+import ar.com.docdigital.vector.util.IntersectionsDifference;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,11 +76,18 @@ public class VectorImageComparator implements Comparator<VectorImageGridIntersec
     private Float getDifference(VectorImageGridIntersections o1) {
         return getDifference(o1, compareAgainst);
     }
-    
+
     public Float getDifference(
-            VectorImageGridIntersections o1, 
+            VectorImageGridIntersections o1,
             VectorImageGridIntersections o2
     ) {
         return scs.getDifference(o1, o2);
+    }
+
+    IntersectionsDifference getIntersectionsDifference(
+            VectorImageGridIntersections o1,
+            VectorImageGridIntersections o2
+    ) {
+        return scs.getIntersectionsDifference(o1, o2);
     }
 }

@@ -50,9 +50,13 @@ class ShapeComparisonDefault implements ShapeComparisonStrategy {
     
     @Override
     public Float getDifference(
-            VectorImageGridIntersections o1, 
-            VectorImageGridIntersections o2
-    ) {
+            VectorImageGridIntersections o1, VectorImageGridIntersections o2) {
+
+        return diffIdxGen.getDifferenceIndex(getIntersectionsDifference(o1, o2));
+    }
+
+    public IntersectionsDifference getIntersectionsDifference(
+            VectorImageGridIntersections o1, VectorImageGridIntersections o2) {
         int totalPoints = 0;
         int lostPoints = 0;
         float distance = 0;
@@ -68,9 +72,7 @@ class ShapeComparisonDefault implements ShapeComparisonStrategy {
             lostPoints += diffX.lostPoints + diffY.lostPoints;
             distance += diffX.distance + diffY.distance;
         }
-        return diffIdxGen.getDifferenceIndex(
-                new IntersectionsDifference(totalPoints, lostPoints, distance)
-        );
+        return new IntersectionsDifference(totalPoints, lostPoints, distance);
     }
 
     private IntersectionsDifference getMinLineDiff(List<Float> o1GridLineIntxn, List<Float> o2GridLineIntxn) {
